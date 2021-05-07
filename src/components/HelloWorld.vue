@@ -14,7 +14,6 @@ import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/silver'  //编辑器主题，不引入则报错
 // import 'tinymce/icons/default'
 import 'tinymce/icons/default/icons'
-import "tinymce/themes/silver";
 import "tinymce/plugins/advlist";
 import "tinymce/plugins/anchor";
 import "tinymce/plugins/autolink";
@@ -67,8 +66,9 @@ export default {
   data () {
     return {
       msg: 'tinymce-vue-cli-2.0',
-      contentValue: '',
+      contentValue: '<h1>请输入标题</h1>',
       editConfig_2: {
+        // placeholder: '请输入标题',
         language_url: '/static/tinymce/langs/zh_CN.js',  //引入语言包文件
         language: "zh_CN", //中文
         skin_url: '/static/tinymce/skins/ui/oxide',
@@ -79,7 +79,10 @@ export default {
         // imagetools_cors_hosts: ["picsum.photos"],
         // menubar: "file edit view insert format tools table help",
         toolbar:
-          "chcklist | hr fullpage restoredraft undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl",
+          "chcklist | hr fullpage restoredraft undo redo | bold italic underline strikethrough | fontselect " +
+          "fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist " +
+          "bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print" +
+          " | insertfile image media template link anchor codesample blockquote | ltr rtl | quicklink quickimage quicktable",
         toolbar_sticky: true,
         autosave_ask_before_unload: true,
         autosave_interval: "30s",
@@ -165,14 +168,17 @@ export default {
         automatic_uploads: true,
         file_picker_types: "image",
         // 实现图片弹出框的拖动或浏览上传功能
-        readonly: false,
+        readonly: true,
         elementpath: false,
         resize: true,
         default_link_target: "_blank",
         autoresize_bottom_margin: 50,
         autoresize_overflow_padding: 50,
         custom_undo_redo_levels: 50,
-        object_resizing: true
+        object_resizing: true,
+        // menubar: false,
+        // toolbar: false
+        quickbars_insert_toolbar: false
       },
     }
   },

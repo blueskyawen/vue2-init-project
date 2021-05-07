@@ -3,7 +3,9 @@
     <div class="tabs">
       <router-link class="tab-item" to="/tinymce">Tinymce</router-link>
       <router-link class="tab-item" to="/ckeditorDoc">CKEditor5-Doc</router-link>
-      <router-link class="tab-item" to="/tree">Doc-Tree</router-link>
+      <router-link class="tab-item" to="/TinymceDemo">TinymceDemo</router-link>
+      <router-link class="tab-item" to="/DocTinymce">DocTinymce</router-link>
+      <router-link class="tab-item" to="/FreeModeTinymce">FreeModeTinymce</router-link>
       <router-link class="tab-item" to="/el-tree">EL-Tree</router-link>
     </div>
     <router-view/>
