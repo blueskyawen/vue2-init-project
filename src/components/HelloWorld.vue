@@ -1,6 +1,8 @@
 <template>
   <div class="hello">
-    <Editor v-model="contentValue" :init="editConfig_2" />
+    <form>
+      <Editor v-model="contentValue" :init="editConfig_2"  @onSaveContent="handleSave" />
+    </form>
   </div>
 </template>
 
@@ -187,6 +189,12 @@ export default {
   },
   mounted() {
     tinymce.init({})
+  },
+  methods: {
+    handleSave(event) {
+      console.log('handleSave handleSave');
+      event.preventDefault();
+    }
   }
 }
 </script>

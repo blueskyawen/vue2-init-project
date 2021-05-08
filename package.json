@@ -10,6 +10,11 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "@aomao/engine": "^2.0.0",
+    "@aomao/plugin-bold": "^2.0.0",
+    "@aomao/plugin-redo": "^2.0.0",
+    "@aomao/plugin-undo": "^2.0.0",
+    "@aomao/toolbar-vue": "^2.0.0",
     "@ckeditor/ckeditor5-build-decoupled-document": "^27.1.0",
     "@ckeditor/ckeditor5-vue2": "^1.0.5",
     "@tinymce/tinymce-vue": "^3.2.8",

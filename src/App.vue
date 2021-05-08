@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" style="position: fixed; height: 100%; width: 100%">
     <div class="tabs">
       <router-link class="tab-item" to="/tinymce">Tinymce</router-link>
       <router-link class="tab-item" to="/ckeditorDoc">CKEditor5-Doc</router-link>
@@ -7,6 +7,7 @@
       <router-link class="tab-item" to="/DocTinymce">DocTinymce</router-link>
       <router-link class="tab-item" to="/FreeModeTinymce">FreeModeTinymce</router-link>
       <router-link class="tab-item" to="/el-tree">EL-Tree</router-link>
+      <router-link class="tab-item" to="/amEditor">am-editor</router-link>
     </div>
     <router-view/>
   </div>

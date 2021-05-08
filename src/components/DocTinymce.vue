@@ -17,14 +17,17 @@ export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: '',
+      contentValue: 'sss',
       editConfig: {
         // language_url: '/static/tinymce/langs/zh_CN.js',  //引入语言包文件
         language: "zh_CN", //中文
         // skin_url: '/static/tinymce/skins/ui/oxide',
-        height: 800,
-        min_height: 800,
+        // min_height: 800,
         //max_height: 500,
+        // skin_url: '/static/tinymce/skins/ui/oxide',
+        height: '100%',
+        // min_height: 500,
+        // max_height: 500,
         menubar: false,
         toolbar_sticky: true,
         toolbar_mode: 'floating', //  'floating', 'sliding', 'scrolling', or 'wrap'
@@ -105,6 +108,11 @@ export default {
   },
   mounted() {
     tinymce.init({})
+  },
+  methods: {
+    handleSave() {
+      console.log('handleSave handleSave')
+    }
   }
 }
 
@@ -155,5 +163,7 @@ function example_image_upload_handler (blobInfo, success, failure, progress) {
 </script>
 
 <style scoped>
-
+.hello {
+  height: 100%;
+}
 </style>
