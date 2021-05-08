@@ -77,11 +77,13 @@ export default {
         // 开头几个插件时收费的
         // checklist autoresize
         plugins:
-          "fullpage print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons",
+          "fullpage print preview paste importcss searchreplace autolink autosave save directionality code visualblocks" +
+          " visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor " +
+          "toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons",
         // imagetools_cors_hosts: ["picsum.photos"],
         // menubar: "file edit view insert format tools table help",
         toolbar:
-          "chcklist | hr fullpage restoredraft undo redo | bold italic underline strikethrough | fontselect " +
+          "checklist | hr fullpage restoredraft undo redo | bold italic underline strikethrough | fontselect " +
           "fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist " +
           "bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print" +
           " | insertfile image media template link anchor codesample blockquote | ltr rtl | quicklink quickimage quicktable",

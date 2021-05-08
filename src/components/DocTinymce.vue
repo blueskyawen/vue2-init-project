@@ -10,7 +10,7 @@ import Editor from '@tinymce/tinymce-vue'
 
 //引入node_modules里的tinymce相关文件文件
 // import tinymce from 'tinymce/tinymce'
-import 'tinymce/themes/silver'  //编辑器主题，不引入则报错
+// import 'tinymce/themes/silver'  //编辑器主题，不引入则报错
 // import 'tinymce/icons/default'
 // import 'tinymce/icons/default/icons'
 export default {
@@ -19,35 +19,53 @@ export default {
     return {
       contentValue: 'sss',
       editConfig: {
-        // language_url: '/static/tinymce/langs/zh_CN.js',  //引入语言包文件
         language: "zh_CN", //中文
-        // skin_url: '/static/tinymce/skins/ui/oxide',
-        // min_height: 800,
-        //max_height: 500,
-        // skin_url: '/static/tinymce/skins/ui/oxide',
         height: '100%',
-        // min_height: 500,
-        // max_height: 500,
         menubar: false,
         toolbar_sticky: true,
         toolbar_mode: 'floating', //  'floating', 'sliding', 'scrolling', or 'wrap'
         statusbar: false,
-        content_css : 'document', //default，dark，document，writer
-        plugins: 'code imagetools',
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px;overflow:hidden }',
+        // content_css : 'document', //default，dark，document，writer
+        content_css: ['/static/tinymce/skins/content/document/content.css', '/static/tiny_common.css'],
+        skin: 'oxide',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }',
+        resize: false,
+        plugins: 'emoticons fullscreen help code hr image imagetools link lists preview print save searchreplace table toc autolink autosave wordcount',
+        // plugins: 'directionality code visualblocks visualchars charmap hr pagebreak nonbreaking textpattern noneditable charmap quickbars',
+        toolbar: 'undo redo removeformat save | formatselect fontselect fontsizeselect | bold italic underline ' +
+          'strikethrough | forecolor backcolor | align numlist bullist | ' +
+          'link image blockquote | hr outdent indent charmap emoticons quicklink quickimage preview fullscreen print ' +
+          '| lineheight searchreplace help selectall subscript superscript code hr | table toc restoredraft wordcount',
+        help_tabs: ['shortcuts', 'keyboardnav'], // 帮助弹框的tabs
+        file_picker_types: 'image',
+        spellchecker_dialog: true,
+        file_picker_callback: file_picker_callback_hander,
         images_upload_handler: example_image_upload_handler,
         images_dataimg_filter: function(img) {
           return !img.hasAttribute('internal-blob');  // blocks the upload of <img> elements with the attribute "internal-blob".
         },
-        resize: false,
-        spellchecker_dialog: true,
-        spellchecker_ignore_list: ['Ephox', 'Moxiecode'],
+        image_caption: true, // 插入图片的标题
+        image_advtab: true, // 可设置图片高级样式
+        image_title: true, // 图片标题
+        image_uploadtab: true, // 图片上传tab
+        default_link_target: '_blank',
+        link_context_toolbar: true, // 光标在链接上显示工具栏
+        link_title: false, // 不要链接标题
+        lists_indent_on_tab: false,
+        save_enablewhendirty: false, // 不用检查变化了才可用按钮
+        save_oncancelcallback: () => { console.log('Save canceled'); },
+        save_onsavecallback: () => { this.handleSave(); },
+        toc_class: 'our-toc'
       },
       config_2: {
-        plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+        plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks ' +
+          'visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc ' +
+          'insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
         imagetools_cors_hosts: ['picsum.photos'],
         menubar: 'file edit view insert format tools table help',
-        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft ' +
+          'aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | ' +
+          'pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
         toolbar_sticky: true,
         autosave_ask_before_unload: true,
         autosave_interval: '30s',
@@ -114,6 +132,44 @@ export default {
       console.log('handleSave handleSave')
     }
   }
+}
+
+function file_picker_callback_hander(cb, value, meta) {
+  var input = document.createElement('input');
+  input.setAttribute('type', 'file');
+  input.setAttribute('accept', 'image/*');
+
+  /*
+    Note: In modern browsers input[type="file"] is functional without
+    even adding it to the DOM, but that might not be the case in some older
+    or quirky browsers like IE, so you might want to add it to the DOM
+    just in case, and visually hide it. And do not forget do remove it
+    once you do not need it anymore.
+  */
+
+  input.onchange = function () {
+    var file = this.files[0];
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      /*
+        Note: Now we need to register the blob in TinyMCEs image blob
+        registry. In the next release this part hopefully won't be
+        necessary, as we are looking to handle it internally.
+      */
+      var id = 'blobid' + (new Date()).getTime();
+      var blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+      var base64 = reader.result.split(',')[1];
+      var blobInfo = blobCache.create(id, file, base64);
+      blobCache.add(blobInfo);
+
+      /* call the callback and populate the Title field with the file name */
+      cb(blobInfo.blobUri(), { title: file.name });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  input.click();
 }
 
 function example_image_upload_handler (blobInfo, success, failure, progress) {
