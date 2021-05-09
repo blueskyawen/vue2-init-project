@@ -10,19 +10,19 @@
 </template>
 
 <script>
-/* import Engine, { EngineInterface } from "@aomao/engine"
+import Engine, { EngineInterface } from "@aomao/engine"
 import Redo from '@aomao/plugin-redo';
 import Undo from '@aomao/plugin-undo';
 import Bold from '@aomao/plugin-bold';
-import AmToolbar , { ToolbarPlugin, ToolbarComponent } from '@aomao/toolbar-vue'
+// import AmToolbar , { ToolbarPlugin, ToolbarComponent } from '@aomao/toolbar-vue'
 const plugins = [
   Redo,
   Undo,
   Bold,
-  ToolbarPlugin
+  // toolbarPlugin
 ];
 const cards = [
-  ToolbarComponent,
+  // ToolbarComponent,
 ];
 export default {
   name: "AmEditorDemo",
@@ -48,13 +48,13 @@ export default {
     }
   },
   components: {
-    AmToolbar
+    // AmToolbar
   },
   created() {
   },
   mounted() {
     //实例化引擎
-    this.engine = new Engine(this.refs.container,{
+    this.engine = new Engine(this.$refs.container,{
       plugins,
       cards,
     });
@@ -80,7 +80,7 @@ export default {
       this.engine.destroy()
     }
   }
-} */
+}
 </script>
 
 <style scoped>

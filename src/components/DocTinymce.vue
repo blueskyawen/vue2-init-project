@@ -1,7 +1,7 @@
 <template>
-  <div class="hello">
+  <form class="hello">
     <Editor v-model="contentValue" :init="editConfig" />
-  </div>
+  </form>
 </template>
 
 <script>
@@ -13,6 +13,7 @@ import Editor from '@tinymce/tinymce-vue'
 // import 'tinymce/themes/silver'  //编辑器主题，不引入则报错
 // import 'tinymce/icons/default'
 // import 'tinymce/icons/default/icons'
+import "../../static/tinymce/plugins/toc";
 export default {
   name: "DocTinymce",
   data () {
@@ -20,22 +21,24 @@ export default {
       contentValue: 'sss',
       editConfig: {
         language: "zh_CN", //中文
-        height: '100%',
+        height: 'calc(100% - 60px)',
         menubar: false,
         toolbar_sticky: true,
-        toolbar_mode: 'floating', //  'floating', 'sliding', 'scrolling', or 'wrap'
+        toolbar_mode: 'sliding', //  'floating', 'sliding', 'scrolling', or 'wrap'
         statusbar: false,
         // content_css : 'document', //default，dark，document，writer
         content_css: ['/static/tinymce/skins/content/document/content.css', '/static/tiny_common.css'],
         skin: 'oxide',
         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }',
         resize: false,
-        plugins: 'emoticons fullscreen help code hr image imagetools link lists preview print save searchreplace table toc autolink autosave wordcount',
-        // plugins: 'directionality code visualblocks visualchars charmap hr pagebreak nonbreaking textpattern noneditable charmap quickbars',
+        plugins: 'emoticons fullscreen help code hr image imagetools link lists preview print save searchreplace table ' +
+          'toc autolink autosave wordcount textpattern charmap codesample importcss noneditable quickbars',
+        // plugins: 'directionality  visualblocks visualchars nonbreaking textpattern ',
         toolbar: 'undo redo removeformat save | formatselect fontselect fontsizeselect | bold italic underline ' +
           'strikethrough | forecolor backcolor | align numlist bullist | ' +
           'link image blockquote | hr outdent indent charmap emoticons quicklink quickimage preview fullscreen print ' +
-          '| lineheight searchreplace help selectall subscript superscript code hr | table toc restoredraft wordcount',
+          '| lineheight searchreplace help selectall subscript superscript code hr | table toc tocupdate ' +
+          'restoredraft wordcount codesample',
         help_tabs: ['shortcuts', 'keyboardnav'], // 帮助弹框的tabs
         file_picker_types: 'image',
         spellchecker_dialog: true,
@@ -55,7 +58,33 @@ export default {
         save_enablewhendirty: false, // 不用检查变化了才可用按钮
         save_oncancelcallback: () => { console.log('Save canceled'); },
         save_onsavecallback: () => { this.handleSave(); },
-        toc_class: 'our-toc'
+        toc_class: 'our-toc', // 自定义目录样式
+        toc_header: 'div',
+        textpattern_patterns: [
+          {start: '*', end: '*', format: 'italic'},
+          {start: '**', end: '**', format: 'bold'},
+          {start: '#', format: 'h1'},
+          {start: '##', format: 'h2'},
+          {start: '###', format: 'h3'},
+          {start: '####', format: 'h4'},
+          {start: '#####', format: 'h5'},
+          {start: '>', format: 'blockquote'},
+          // The following text patterns require the `lists` plugin
+          {start: '* ', cmd: 'InsertUnorderedList'},
+          {start: '- ', cmd: 'InsertUnorderedList' },
+          {start: '1. ', cmd: 'InsertOrderedList', value: { 'list-style-type': 'decimal' }},
+          {start: '1) ', cmd: 'InsertOrderedList', value: { 'list-style-type': 'decimal' }},
+          {start: 'a. ', cmd: 'InsertOrderedList', value: { 'list-style-type': 'lower-alpha' }},
+          {start: 'a) ', cmd: 'InsertOrderedList', value: { 'list-style-type': 'lower-alpha' }},
+          {start: 'i. ', cmd: 'InsertOrderedList', value: { 'list-style-type': 'lower-roman' }},
+          {start: 'i) ', cmd: 'InsertOrderedList', value: { 'list-style-type': 'lower-roman' }},
+          {start: '---', replacement: '<hr/>'},
+          {start: '--', replacement: '—'},
+        ],
+        noneditable_noneditable_class: 'mceNonEditable',
+        quickbars_insert_toolbar: false,
+        quickbars_selection_toolbar: false,
+        quickbars_image_toolbar: false
       },
       config_2: {
         plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks ' +
@@ -65,7 +94,8 @@ export default {
         menubar: 'file edit view insert format tools table help',
         toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft ' +
           'aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | ' +
-          'pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+          'pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor ' +
+          'codesample | ltr rtl',
         toolbar_sticky: true,
         autosave_ask_before_unload: true,
         autosave_interval: '30s',
@@ -117,7 +147,8 @@ export default {
         contextmenu: 'link image imagetools table',
         skin: 'oxide',
         content_css: 'document',
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }',
+        autoresize_overflow_padding: 50
       }
     }
   },

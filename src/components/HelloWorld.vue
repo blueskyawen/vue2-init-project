@@ -59,7 +59,7 @@ import "tinymce/plugins/template";
 import "tinymce/plugins/textcolor";
 import "tinymce/plugins/textpattern";
 import "tinymce/plugins/searchreplace";
-import "tinymce/plugins/toc";
+import "../../static/tinymce/plugins/toc";
 import "tinymce/plugins/visualblocks";
 import "tinymce/plugins/visualchars";
 import "tinymce/plugins/wordcount";
@@ -86,7 +86,8 @@ export default {
           "checklist | hr fullpage restoredraft undo redo | bold italic underline strikethrough | fontselect " +
           "fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist " +
           "bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print" +
-          " | insertfile image media template link anchor codesample blockquote | ltr rtl | quicklink quickimage quicktable",
+          " | insertfile image media template link anchor codesample blockquote | ltr rtl | quicklink quickimage quicktable " +
+          "toc tocupdate",
         toolbar_sticky: true,
         autosave_ask_before_unload: true,
         autosave_interval: "30s",
@@ -162,7 +163,7 @@ export default {
         contextmenu: "link image imagetools table",
         // skin: useDarkMode ? "oxide-dark" : "oxide",
         // content_css: useDarkMode ? "dark" : "document",
-        content_css: "/static/tinymce/skins/content/document/content.css",
+        content_css: ["/static/tinymce/skins/content/document/content.css", '/static/tiny_common.css'],
         content_style:
           "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
         /* enable title field in the Image dialog*/
@@ -182,7 +183,8 @@ export default {
         object_resizing: true,
         // menubar: false,
         // toolbar: false
-        quickbars_insert_toolbar: false
+        quickbars_insert_toolbar: false,
+        toc_class: 'our-toc', // 自定义目录样式
       },
     }
   },
