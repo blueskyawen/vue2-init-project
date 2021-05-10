@@ -8,6 +8,7 @@
       <router-link class="tab-item" to="/FreeModeTinymce">FreeModeTinymce</router-link>
       <router-link class="tab-item" to="/el-tree">EL-Tree</router-link>
       <router-link class="tab-item" to="/amEditor">am-editor</router-link>
+      <router-link class="tab-item" to="/CKEditor5Claasic">CKEditor5Claasic</router-link>
     </div>
     <router-view/>
   </div>

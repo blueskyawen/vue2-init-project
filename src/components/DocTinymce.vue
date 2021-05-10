@@ -1,7 +1,10 @@
 <template>
-  <form class="hello">
-    <Editor v-model="contentValue" :init="editConfig" />
-  </form>
+  <div class="hello">
+    <button @click="toTop">toTop</button>
+    <div>
+      <Editor ref="myeditor" v-model="contentValue" :init="editConfig" />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -14,12 +17,66 @@ import Editor from '@tinymce/tinymce-vue'
 // import 'tinymce/icons/default'
 // import 'tinymce/icons/default/icons'
 import "../../static/tinymce/plugins/toc";
+
+let hReg = /^h[1-6]$/;
+let  cataTocList = []
+
+function getTocList(editor, list) {
+  var calcList = function (children, list) {
+    if (children && children.length > 0) {
+      for (let index =0; index < children.length; index++) {
+        let x = children[index]
+        console.log(x)
+        console.log(x.localName)
+        if (hReg.test(x.localName)) {
+          let id = 'toc_' + parseInt(Math.random() * 100000);
+          console.log(id)
+          x.id = id;
+          let node = {
+            id: id,
+            tag: x.localName,
+            value: x.innerHTML,
+            level: +x.localName[1],
+            children: []
+          };
+          let listLength = list.length;
+          if (listLength !== 0 && list[listLength - 1].level < node.level) {
+            list[listLength - 1].children.push(node)
+          } else {
+            list.push(node)
+          }
+        }
+      }
+    }
+  }
+  try {
+    let bodyItems = editor.iframeElement.contentWindow.document.documentElement.children[1].children;
+    calcList(bodyItems, list);
+  } catch(e) {
+    console.log(e)
+  }
+  setTimeout(() => {
+    console.log(editor.getContent())
+  }, 1000);
+}
+
 export default {
   name: "DocTinymce",
   data () {
     return {
       contentValue: 'sss',
+      cataTocList: [],
       editConfig: {
+        setup: function (editor) {
+          let that = this;
+          editor.ui.registry.addButton('docToc', {
+            icon: 'toc',
+            tooltip: '大纲',
+            onAction: function (_) {
+              getTocList(editor, cataTocList)
+            }
+          });
+        },
         language: "zh_CN", //中文
         height: 'calc(100% - 60px)',
         menubar: false,
@@ -34,7 +91,7 @@ export default {
         plugins: 'emoticons fullscreen help code hr image imagetools link lists preview print save searchreplace table ' +
           'toc autolink autosave wordcount textpattern charmap codesample importcss noneditable quickbars',
         // plugins: 'directionality  visualblocks visualchars nonbreaking textpattern ',
-        toolbar: 'undo redo removeformat save | formatselect fontselect fontsizeselect | bold italic underline ' +
+        toolbar: 'docToc undo redo removeformat save | formatselect fontselect fontsizeselect | bold italic underline ' +
           'strikethrough | forecolor backcolor | align numlist bullist | ' +
           'link image blockquote | hr outdent indent charmap emoticons quicklink quickimage preview fullscreen print ' +
           '| lineheight searchreplace help selectall subscript superscript code hr | table toc tocupdate ' +
@@ -149,7 +206,8 @@ export default {
         content_css: 'document',
         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }',
         autoresize_overflow_padding: 50
-      }
+      },
+      myeditor: null
     }
   },
   components: {
@@ -157,10 +215,25 @@ export default {
   },
   mounted() {
     tinymce.init({})
+    this.$nextTick(() => {
+      this.myeditor = this.$refs.myeditor.editor
+      console.log(this.myeditor.iframeElement)
+      console.log(this.myeditor)
+    })
   },
   methods: {
     handleSave() {
       console.log('handleSave handleSave')
+      console.log(this.myeditor.container.firstChild)
+      console.log(this.myeditor.iframeElement.contentWindow.document.documentElement.scrollTop)
+      console.log(this.myeditor)
+      console.log(cataTocList)
+    },
+    toTop() {
+      this.myeditor.iframeElement.contentWindow.document.documentElement.scrollTop = 0
+    },
+    getCatelogs() {
+      console.log('getCatelogs')
     }
   }
 }
@@ -252,5 +325,8 @@ function example_image_upload_handler (blobInfo, success, failure, progress) {
 <style scoped>
 .hello {
   height: 100%;
+}
+.hello div {
+  height: inherit;
 }
 </style>

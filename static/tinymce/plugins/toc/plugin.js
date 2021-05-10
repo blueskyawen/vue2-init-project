@@ -21,8 +21,8 @@
       return editor.getParam('toc_class', 'mce-toc');
     };
     var getTocHeader = function (editor) {
-      var tagName = editor.getParam('toc_header', 'h2');
-      return /^h[1-6]$/.test(tagName) ? tagName : 'h2';
+      var tagName = editor.getParam('toc_header', 'div');
+      return /^h[1-6]$/.test(tagName) ? tagName : 'div';
     };
     var getTocDepth = function (editor) {
       var depth = parseInt(editor.getParam('toc_depth', '3'), 10);
@@ -54,7 +54,7 @@
       var headerTag = getTocHeader(editor);
       var selector = generateSelector(getTocDepth(editor));
       var headers = editor.$(selector);
-      if (headers.length && /^h[1-9]$/i.test(headerTag)) {
+      if (headers.length) {
         headers = headers.filter(function (i, el) {
           return !editor.dom.hasClass(el.parentNode, tocClass);
         });

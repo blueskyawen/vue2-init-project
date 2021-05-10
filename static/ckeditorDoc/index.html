@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="dist/ckeditorDoc.js"></script>
+</head>
+<body>
+<div id="editor">
+    <p>Editor content goes here.</p>
+</div>
+
+<script>
+    ClassicEditor
+        .create( document.querySelector( '#editor' ), {
+            plugins: [ Essentials, Paragraph, Bold, Italic ],
+            toolbar: [ 'bold', 'italic' ]
+        } )
+        .then( editor => {
+            console.log( 'Editor was initialized', editor );
+        } )
+        .catch( error => {
+            console.error( error.stack );
+        } );
+</script>
+</body>
+</html>
+

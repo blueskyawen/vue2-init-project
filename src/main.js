@@ -9,6 +9,7 @@ Vue.use(VueDragTree)
 import { Tree } from 'element-ui';
 Vue.use(Tree)
 import './common.css'
+import './ckeditor-common.css'
 
 Vue.config.productionTip = false
 

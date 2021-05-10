@@ -7,6 +7,7 @@ import ELTree from '@/components/ELTree'
 import DocTinymce from '@/components/DocTinymce'
 import FreeModeTinymce from '@/components/FreeModeTinymce'
 import AmEditorDemo from '@/components/AmEditorDemo'
+import CKEditor5Claasic from '@/components/CKEditor5Claasic'
 
 Vue.use(Router)
 
@@ -50,6 +51,11 @@ export default new Router({
       path: '/amEditor',
       name: 'AmEditorDemo',
       component: AmEditorDemo
+    },
+    {
+      path: '/CKEditor5Claasic',
+      name: 'CKEditor5Claasic',
+      component: CKEditor5Claasic
     }
   ]
 })
