@@ -103,6 +103,15 @@ function insertToc(editor) {
       }
       if (children[i].localName == 'a') {
         children[i].style.cursor = 'pointer';
+        children[i].onclick = function() {
+          let id = children[i].getAttribute('href').slice(1);
+          let ifreams = editor.iframeElement.contentWindow.document.documentElement.children[1];
+          console.log(id)
+          //console.log(document.getElementById()(id).innerHTML)
+          //console.log(contentWindow.document.getElementById(id).offsetTop)
+          console.log(editor)
+          editor.iframeElement.contentWindow.document.documentElement.scrollTop = 0
+        };
       }
       if (children[i].children) {
         hhhh(children[i].children)
