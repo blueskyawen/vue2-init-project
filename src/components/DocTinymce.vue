@@ -22,7 +22,7 @@ let hReg = /^h[1-6]$/;
 let  cataTocList = []
 
 function getTocList(editor, list) {
-  var calcList = function (children, list) {
+  function calcList (children, list) {
     if (children && children.length > 0) {
       for (let index =0; index < children.length; index++) {
         let x = children[index]
@@ -36,28 +36,103 @@ function getTocList(editor, list) {
             id: id,
             tag: x.localName,
             value: x.innerHTML,
-            level: +x.localName[1],
-            children: []
+            level: +x.localName[1] - 1,
           };
-          let listLength = list.length;
-          if (listLength !== 0 && list[listLength - 1].level < node.level) {
-            list[listLength - 1].children.push(node)
-          } else {
-            list.push(node)
-          }
+          list.push(node)
         }
       }
+    }
+  }
+  function insertToc(editor, list) {
+    var toc_container = document.createElement('DIV');
+    toc_container.style.position = 'absolute'
+    toc_container.style.width = '260px'
+    toc_container.style.top = '60px'
+    toc_container.style.left = 'calc(50% + 430px)'
+    toc_container.style.display = 'block'
+    toc_container.style.height = '100%'
+    var toc_header = document.createElement('H2');
+    toc_header.innerHTML = '大纲';
+    toc_header.style.fontSize = '16px';
+    toc_header.style.fontWeight = 'bold';
+    toc_header.style.paddingBottom = '5px';
+    toc_header.style.borderBottom = 'solid 1px #ccc';
+    toc_container.appendChild(toc_header);
+    var toc_ul = document.createElement('UL');
+    toc_ul.style.paddingTop = '10px'
+    toc_ul.style.listStyle = 'none'
+    console.log(list)
+    for (let index = 0; index < list.length; index++) {
+      let toc_li = document.createElement('LI');
+      toc_li.setAttribute("data-level", list[index].level);
+      toc_li.style.paddingLeft = list[index].level * 16 + 'px';
+      toc_li.style.fontSize = '14px';
+      toc_li.style.lineHeight = '24px';
+      let toc_a = document.createElement('A');
+      toc_a.style.cursor = 'pointer';
+      toc_a.innerHTML = list[index].value;
+      toc_a.setAttribute("href","#" + list[index].id);
+      toc_li.appendChild(toc_a);
+      toc_ul.appendChild(toc_li);
+    }
+    toc_container.appendChild(toc_ul);
+    let content_c = editor.container.children[0];
+    if (content_c) {
+      console.log(content_c)
+      content_c.appendChild(toc_container)
     }
   }
   try {
     let bodyItems = editor.iframeElement.contentWindow.document.documentElement.children[1].children;
     calcList(bodyItems, list);
+    console.log(list)
+    insertToc(editor, list)
   } catch(e) {
     console.log(e)
   }
   setTimeout(() => {
     console.log(editor.getContent())
   }, 1000);
+}
+
+function insertToc(editor) {
+  function hhhh(children) {
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].localName == 'ul' || children[i].localName == 'li') {
+        children[i].style.paddingLeft = '12px';
+      }
+      if (children[i].localName == 'a') {
+        children[i].style.cursor = 'pointer';
+      }
+      if (children[i].children) {
+        hhhh(children[i].children)
+      }
+    }
+  }
+  let toc_container = editor.contentWindow.document.documentElement
+    .getElementsByClassName("our-toc")[0].cloneNode(true);
+  toc_container.style.display = 'block';
+  toc_container.style.position = 'absolute'
+  toc_container.style.width = '260px'
+  toc_container.style.top = '60px'
+  toc_container.style.left = 'calc(50% + 430px)'
+  toc_container.style.display = 'block'
+  toc_container.style.height = '100%'
+  let toc_header = toc_container.children[0];
+  toc_header.innerHTML = '大纲';
+  toc_header.style.fontSize = '16px';
+  toc_header.style.fontWeight = 'bold';
+  toc_header.style.paddingBottom = '5px';
+  toc_header.style.borderBottom = 'solid 1px #ccc';
+  var ulss = toc_container.getElementsByTagName('UL');
+  for (let i = 0; i < ulss.length; i++) {
+    ulss[i].style.listStyle = 'none'
+  }
+  let toc_ul = toc_container.children[1];
+  toc_ul.style.paddingTop = '10px'
+  hhhh(toc_ul.children, 0)
+  console.log(toc_container)
+  editor.container.children[0].appendChild(toc_container)
 }
 
 export default {
@@ -73,7 +148,9 @@ export default {
             icon: 'toc',
             tooltip: '大纲',
             onAction: function (_) {
-              getTocList(editor, cataTocList)
+              editor.execCommand('mceInsertToc');
+              // getTocList(editor, cataTocList)
+              insertToc(editor)
             }
           });
         },
@@ -214,6 +291,7 @@ export default {
     Editor
   },
   mounted() {
+    cataTocList = []
     tinymce.init({})
     this.$nextTick(() => {
       this.myeditor = this.$refs.myeditor.editor

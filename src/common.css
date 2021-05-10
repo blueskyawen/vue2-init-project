@@ -1,3 +1,12 @@
 .tox .tox-pop {
   display: none !important;
 }
+.toc_container {
+  position: absolute;
+  top: 70px;
+  left: calc(50% + 430px);
+  width: 300px;
+}
+.toc_container h2 {
+  border-bottom: solid 1px #ccc;
+}
