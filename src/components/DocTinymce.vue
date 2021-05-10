@@ -20,6 +20,7 @@ import "../../static/tinymce/plugins/toc";
 
 let hReg = /^h[1-6]$/;
 let  cataTocList = []
+var curH = ''
 
 function getTocList(editor, list) {
   function calcList (children, list) {
@@ -96,25 +97,45 @@ function getTocList(editor, list) {
 }
 
 function insertToc(editor) {
-  function hhhh(children) {
+  function clearStyle(children, toc_ul) {
+    var childrens = toc_ul ? toc_ul.children : (children || [])
+    for (let i = 0; i < childrens.length; i++) {
+      console.log('666')
+      childrens[i].style.color = "#666"
+      if (childrens[i].children) {
+        clearStyle(childrens[i].children)
+      }
+    }
+  }
+  function hhhh(children, toc_ul) {
     for (let i = 0; i < children.length; i++) {
       if (children[i].localName == 'ul' || children[i].localName == 'li') {
         children[i].style.paddingLeft = '12px';
       }
       if (children[i].localName == 'a') {
         children[i].style.cursor = 'pointer';
+        children[i].style.color = "#666"
         children[i].onclick = function() {
           let id = children[i].getAttribute('href').slice(1);
           let ifreams = editor.iframeElement.contentWindow.document.documentElement.children[1];
-          console.log(id)
           //console.log(document.getElementById()(id).innerHTML)
           //console.log(contentWindow.document.getElementById(id).offsetTop)
           console.log(editor)
-          editor.iframeElement.contentWindow.document.documentElement.scrollTop = 0
+          console.log(h_el_top)
+          clearStyle(children, toc_ul)
+          children[i].style.color = "blue"
+          let h_el_top = editor.iframeElement.contentWindow.document.getElementById(id).offsetTop;
+          editor.iframeElement.contentWindow.document.documentElement.scrollTop = h_el_top
         };
+        children[i].onmouseover=function(){
+          // children[i].style.color = "red"
+        }
+        children[i].onmouseout=function(){
+          // children[i].style.color = "#666"
+        }
       }
       if (children[i].children) {
-        hhhh(children[i].children)
+        hhhh(children[i].children, toc_ul)
       }
     }
   }
@@ -137,9 +158,9 @@ function insertToc(editor) {
   for (let i = 0; i < ulss.length; i++) {
     ulss[i].style.listStyle = 'none'
   }
-  let toc_ul = toc_container.children[1];
+  var toc_ul = toc_container.children[1];
   toc_ul.style.paddingTop = '10px'
-  hhhh(toc_ul.children, 0)
+  hhhh(toc_ul.children, toc_ul)
   console.log(toc_container)
   editor.container.children[0].appendChild(toc_container)
 }
