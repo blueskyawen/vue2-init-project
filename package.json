@@ -19,7 +19,9 @@
     "@ckeditor/ckeditor5-vue2": "^1.0.5",
     "@tinymce/tinymce-vue": "^3.2.8",
     "element-ui": "^2.15.1",
+    "jquery": "^3.6.0",
     "tinymce": "^5.7.1",
+    "underscore": "^1.13.1",
     "vue": "^2.5.2",
     "vue-drag-tree": "^1.1.9",
     "vue-router": "^3.0.1"

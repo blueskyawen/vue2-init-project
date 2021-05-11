@@ -10,6 +10,7 @@ import { Tree } from 'element-ui';
 Vue.use(Tree)
 import './common.css'
 import './ckeditor-common.css'
+import $ from 'jquery'
 
 Vue.config.productionTip = false
 

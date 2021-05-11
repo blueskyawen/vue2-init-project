@@ -17,160 +17,97 @@ import Editor from '@tinymce/tinymce-vue'
 // import 'tinymce/icons/default'
 // import 'tinymce/icons/default/icons'
 import "../../static/tinymce/plugins/toc";
-
-let hReg = /^h[1-6]$/;
-let  cataTocList = []
-var curH = ''
-
-function getTocList(editor, list) {
-  function calcList (children, list) {
-    if (children && children.length > 0) {
-      for (let index =0; index < children.length; index++) {
-        let x = children[index]
-        console.log(x)
-        console.log(x.localName)
-        if (hReg.test(x.localName)) {
-          let id = 'toc_' + parseInt(Math.random() * 100000);
-          console.log(id)
-          x.id = id;
-          let node = {
-            id: id,
-            tag: x.localName,
-            value: x.innerHTML,
-            level: +x.localName[1] - 1,
-          };
-          list.push(node)
-        }
-      }
-    }
-  }
-  function insertToc(editor, list) {
-    var toc_container = document.createElement('DIV');
-    toc_container.style.position = 'absolute'
-    toc_container.style.width = '260px'
-    toc_container.style.top = '60px'
-    toc_container.style.left = 'calc(50% + 430px)'
-    toc_container.style.display = 'block'
-    toc_container.style.height = '100%'
-    var toc_header = document.createElement('H2');
-    toc_header.innerHTML = '大纲';
-    toc_header.style.fontSize = '16px';
-    toc_header.style.fontWeight = 'bold';
-    toc_header.style.paddingBottom = '5px';
-    toc_header.style.borderBottom = 'solid 1px #ccc';
-    toc_container.appendChild(toc_header);
-    var toc_ul = document.createElement('UL');
-    toc_ul.style.paddingTop = '10px'
-    toc_ul.style.listStyle = 'none'
-    console.log(list)
-    for (let index = 0; index < list.length; index++) {
-      let toc_li = document.createElement('LI');
-      toc_li.setAttribute("data-level", list[index].level);
-      toc_li.style.paddingLeft = list[index].level * 16 + 'px';
-      toc_li.style.fontSize = '14px';
-      toc_li.style.lineHeight = '24px';
-      let toc_a = document.createElement('A');
-      toc_a.style.cursor = 'pointer';
-      toc_a.innerHTML = list[index].value;
-      toc_a.setAttribute("href","#" + list[index].id);
-      toc_li.appendChild(toc_a);
-      toc_ul.appendChild(toc_li);
-    }
-    toc_container.appendChild(toc_ul);
-    let content_c = editor.container.children[0];
-    if (content_c) {
-      console.log(content_c)
-      content_c.appendChild(toc_container)
-    }
-  }
-  try {
-    let bodyItems = editor.iframeElement.contentWindow.document.documentElement.children[1].children;
-    calcList(bodyItems, list);
-    console.log(list)
-    insertToc(editor, list)
-  } catch(e) {
-    console.log(e)
-  }
-  setTimeout(() => {
-    console.log(editor.getContent())
-  }, 1000);
-}
+import _ from "underscore"
 
 function insertToc(editor) {
-  function clearStyle(children, toc_ul) {
-    var childrens = toc_ul ? toc_ul.children : (children || [])
-    for (let i = 0; i < childrens.length; i++) {
-      console.log('666')
-      childrens[i].style.color = "#666"
-      if (childrens[i].children) {
-        clearStyle(childrens[i].children)
-      }
-    }
+  if ($(editor.container).find('.editor-toc').length !== 0) {
+    $(editor.container).find('.editor-toc').show();
+    return;
   }
-  function hhhh(children, toc_ul) {
-    for (let i = 0; i < children.length; i++) {
-      if (children[i].localName == 'ul' || children[i].localName == 'li') {
-        children[i].style.paddingLeft = '12px';
+  editor.execCommand('mceInsertToc');
+  function activeTocItem(toc_container$, editor) {
+    let iframe_doc$ = $(editor.iframeElement.contentWindow.document.documentElement);
+    let curId = '';
+    toc_container$.find('a').css('color', '#595959').each(function () {
+      let id = $(this).attr('href').slice(1);
+      if (iframe_doc$.find('#' + id).first().offset().top <= iframe_doc$.scrollTop() + 10) {
+        curId = id;
       }
-      if (children[i].localName == 'a') {
-        children[i].style.cursor = 'pointer';
-        children[i].style.color = "#666"
-        children[i].onclick = function() {
-          let id = children[i].getAttribute('href').slice(1);
-          let ifreams = editor.iframeElement.contentWindow.document.documentElement.children[1];
-          //console.log(document.getElementById()(id).innerHTML)
-          //console.log(contentWindow.document.getElementById(id).offsetTop)
-          console.log(editor)
-          console.log(h_el_top)
-          clearStyle(children, toc_ul)
-          children[i].style.color = "blue"
-          let h_el_top = editor.iframeElement.contentWindow.document.getElementById(id).offsetTop;
-          editor.iframeElement.contentWindow.document.documentElement.scrollTop = h_el_top
-        };
-        children[i].onmouseover=function(){
-          // children[i].style.color = "red"
-        }
-        children[i].onmouseout=function(){
-          // children[i].style.color = "#666"
-        }
-      }
-      if (children[i].children) {
-        hhhh(children[i].children, toc_ul)
-      }
-    }
+    });
+    toc_container$.find("[href='#"+ curId + "']").css('color', '#25b864')
   }
-  let toc_container = editor.contentWindow.document.documentElement
-    .getElementsByClassName("our-toc")[0].cloneNode(true);
-  toc_container.style.display = 'block';
-  toc_container.style.position = 'absolute'
-  toc_container.style.width = '260px'
-  toc_container.style.top = '60px'
-  toc_container.style.left = 'calc(50% + 430px)'
-  toc_container.style.display = 'block'
-  toc_container.style.height = '100%'
-  let toc_header = toc_container.children[0];
-  toc_header.innerHTML = '大纲';
-  toc_header.style.fontSize = '16px';
-  toc_header.style.fontWeight = 'bold';
-  toc_header.style.paddingBottom = '5px';
-  toc_header.style.borderBottom = 'solid 1px #ccc';
-  var ulss = toc_container.getElementsByTagName('UL');
-  for (let i = 0; i < ulss.length; i++) {
-    ulss[i].style.listStyle = 'none'
+  function insertCataList(toc_container$, editor) {
+    let cata_ul$ = toc_container$.find('ul').first();
+    cata_ul$.find('ul').css('padding-left', '12px')
+      .end().find('li').css({
+      'padding-left': '12px',
+      'line-height': '24px'
+    }).end().find('a').css({
+      'cursor': 'pointer',
+      'color': '#595959',
+      'font-size': '12px'
+    }).click(function() {
+      let id = $(this).attr('href').slice(1);
+      let iframe_doc$ = $(editor.iframeElement.contentWindow.document.documentElement);
+      iframe_doc$.scrollTop(iframe_doc$.find('#' + id).first().offset().top);
+    }).hover(function () {
+      $(this).css('color', '#999');
+    }, function () {
+      $(this).css('color', '#595959');
+    });
   }
-  var toc_ul = toc_container.children[1];
-  toc_ul.style.paddingTop = '10px'
-  hhhh(toc_ul.children, toc_ul)
-  console.log(toc_container)
-  editor.container.children[0].appendChild(toc_container)
+  let toc_container$ = $(editor.iframeElement.contentWindow.document.documentElement.getElementsByClassName("our-toc")[0].cloneNode(true));
+  toc_container$.css({
+    'display': 'block',
+    'position': 'absolute',
+    'width': '280px',
+    'top': '60px',
+    'left': 'calc(50% + 420px)',
+    'height': '100%'
+  });
+  toc_container$.addClass('editor-toc');
+  let toc_header$ = toc_container$.children('div');
+  toc_header$.html('大纲');
+  toc_header$.css({
+    'display': 'flex',
+    'justify-content': 'space-between',
+    'align-items': 'center',
+    'font-size': '16px',
+    'font-weight': 'bold',
+    'margin-bottom': '10px',
+    'color': '#595959',
+    'padding': '5px 12px',
+    'border-bottom': 'solid 1px #e8e8e8',
+    'box-sizing': 'border-box'
+  });
+  let toc_close$ = $('<span>X</span>');
+  toc_close$.css({
+    'display': 'inline-block',
+    'font-size': '14px',
+    'font-weight': 'normal',
+    'cursor': 'pointer'
+  }).hover(function() {
+    $(this).css('font-weight','bold');
+  }, function () {
+    $(this).css('font-weight','normal');
+  }).click(function() {
+    toc_container$.hide();
+  });
+  toc_header$.append(toc_close$);
+  toc_container$.find('ul').css('list-style', 'none');
+  insertCataList(toc_container$, editor);
+  $(editor.container.children[0]).append(toc_container$);
+  let handleScroll = _.debounce(activeTocItem, 500);
+  $(editor.iframeElement.contentWindow).scroll(function () {
+    handleScroll(toc_container$, editor)
+  });
 }
 
 export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: 'sss',
-      cataTocList: [],
+      contentValue: '',
       editConfig: {
         setup: function (editor) {
           let that = this;
@@ -178,8 +115,6 @@ export default {
             icon: 'toc',
             tooltip: '大纲',
             onAction: function (_) {
-              editor.execCommand('mceInsertToc');
-              // getTocList(editor, cataTocList)
               insertToc(editor)
             }
           });
@@ -248,71 +183,9 @@ export default {
         noneditable_noneditable_class: 'mceNonEditable',
         quickbars_insert_toolbar: false,
         quickbars_selection_toolbar: false,
-        quickbars_image_toolbar: false
-      },
-      config_2: {
-        plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks ' +
-          'visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc ' +
-          'insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
-        imagetools_cors_hosts: ['picsum.photos'],
-        menubar: 'file edit view insert format tools table help',
-        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft ' +
-          'aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | ' +
-          'pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor ' +
-          'codesample | ltr rtl',
-        toolbar_sticky: true,
-        autosave_ask_before_unload: true,
-        autosave_interval: '30s',
-        autosave_prefix: '{path}{query}-{id}-',
-        autosave_restore_when_empty: false,
-        autosave_retention: '2m',
-        image_advtab: true,
-        link_list: [
-          { title: 'My page 1', value: 'https://www.tiny.cloud' },
-          { title: 'My page 2', value: 'http://www.moxiecode.com' }
-        ],
-        image_list: [
-          { title: 'My page 1', value: 'https://www.tiny.cloud' },
-          { title: 'My page 2', value: 'http://www.moxiecode.com' }
-        ],
-        image_class_list: [
-          { title: 'None', value: '' },
-          { title: 'Some class', value: 'class-name' }
-        ],
-        importcss_append: true,
-        file_picker_callback: function (callback, value, meta) {
-          /* Provide file and text for the link dialog */
-          if (meta.filetype === 'file') {
-            callback('https://www.google.com/logos/google.jpg', { text: 'My text' });
-          }
-
-          /* Provide image and alt text for the image dialog */
-          if (meta.filetype === 'image') {
-            callback('https://www.google.com/logos/google.jpg', { alt: 'My alt text' });
-          }
-
-          /* Provide alternative source and posted for the media dialog */
-          if (meta.filetype === 'media') {
-            callback('movie.mp4', { source2: 'alt.ogg', poster: 'https://www.google.com/logos/google.jpg' });
-          }
-        },
-        templates: [
-          { title: 'New Table', description: 'creates a new table', content: '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>' },
-          { title: 'Starting my story', description: 'A cure for writers block', content: 'Once upon a time...' },
-          { title: 'New list with dates', description: 'New List with dates', content: '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>' }
-        ],
-        template_cdate_format: '[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]',
-        template_mdate_format: '[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]',
-        height: 600,
-        image_caption: true,
-        quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
-        noneditable_noneditable_class: 'mceNonEditable',
-        toolbar_mode: 'sliding',
-        contextmenu: 'link image imagetools table',
-        skin: 'oxide',
-        content_css: 'document',
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }',
-        autoresize_overflow_padding: 50
+        quickbars_image_toolbar: false,
+        contextmenu: false,
+        block_formats: 'Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; Header 4=h4; Header 5=h5',
       },
       myeditor: null
     }
@@ -321,13 +194,8 @@ export default {
     Editor
   },
   mounted() {
-    cataTocList = []
     tinymce.init({})
-    this.$nextTick(() => {
-      this.myeditor = this.$refs.myeditor.editor
-      console.log(this.myeditor.iframeElement)
-      console.log(this.myeditor)
-    })
+    this.myeditor = this.$refs.myeditor.editor
   },
   methods: {
     handleSave() {
@@ -335,7 +203,6 @@ export default {
       console.log(this.myeditor.container.firstChild)
       console.log(this.myeditor.iframeElement.contentWindow.document.documentElement.scrollTop)
       console.log(this.myeditor)
-      console.log(cataTocList)
     },
     toTop() {
       this.myeditor.iframeElement.contentWindow.document.documentElement.scrollTop = 0
