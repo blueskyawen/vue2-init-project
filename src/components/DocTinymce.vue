@@ -2,7 +2,8 @@
   <div class="hello">
     <button @click="toTop">toTop</button>
     <div>
-      <Editor ref="myeditor" v-model="contentValue" :init="editConfig" />
+      <Editor ref="myeditor" v-model="contentValue" :init="editConfig" @onChange="handleOnChange"
+              @onNodeChange="handleOnNodeChange"/>
     </div>
   </div>
 </template>
@@ -107,7 +108,7 @@ export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: '',
+      contentValue: '<h1 class="tym-placeholder" data-placeholder="请输入标题"><br data-cke-filler="true"></h1>',
       editConfig: {
         setup: function (editor) {
           let that = this;
@@ -194,8 +195,10 @@ export default {
     Editor
   },
   mounted() {
-    tinymce.init({})
-    this.myeditor = this.$refs.myeditor.editor
+    tinymce.init({}).then((editor) => {
+      this.myeditor = this.$refs.myeditor.editor
+      console.log(this.myeditor)
+    })
   },
   methods: {
     handleSave() {
@@ -209,6 +212,12 @@ export default {
     },
     getCatelogs() {
       console.log('getCatelogs')
+    },
+    handleOnChange() {
+      console.log('handleOnChange')
+    },
+    handleOnNodeChange() {
+      console.log('handleOnNodeChange')
     }
   }
 }

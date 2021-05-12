@@ -71,3 +71,16 @@
 .our-toc ul li a:active {
   text-decoration:none;
 }
+.tym-placeholder {
+  margin-top: 10px;
+  position: relative;
+}
+.tym-placeholder:before {
+  cursor: text;
+  color: #707070;
+  position: absolute;
+  left: 0;
+  right: 0;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
