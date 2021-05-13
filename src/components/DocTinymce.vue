@@ -104,11 +104,87 @@ function insertToc(editor) {
   });
 }
 
+function insertToc22(editor) {
+  var hs = $(editor.iframeElement.contentDocument.body).find('h1,h2,h3,h4,h5,h6');
+  if (hs.length == 0) return;
+  var s = '';
+  let toc_container$ = $('<div class="editor-toc"></div>');
+  toc_container$.css({
+    'display': 'block',
+    'position': 'absolute',
+    'width': '280px',
+    'top': '60px',
+    'left': 'calc(50% + 420px)',
+    'height': '100%'
+  });
+  let toc_header$ = $('<div class="editor-header"></div>');
+  toc_header$.html('大纲');
+  toc_header$.css({
+    'display': 'flex',
+    'justify-content': 'space-between',
+    'align-items': 'center',
+    'font-size': '16px',
+    'font-weight': 'bold',
+    'margin-bottom': '10px',
+    'color': '#595959',
+    'padding': '5px 12px',
+    'border-bottom': 'solid 1px #e8e8e8',
+    'box-sizing': 'border-box'
+  });
+  let toc_close$ = $('<span>X</span>');
+  toc_close$.css({
+    'display': 'inline-block',
+    'font-size': '14px',
+    'font-weight': 'normal',
+    'cursor': 'pointer'
+  }).hover(function() {
+    $(this).css('font-weight','bold');
+  }, function () {
+    $(this).css('font-weight','normal');
+  }).click(function() {
+    $(this).closest('.editor-toc').hide();
+  });
+  toc_header$.append(toc_close$);
+  toc_container$.append(toc_header$);
+  let toc_catelogs$ = $('<div style="padding: 5px 12px"></div>');
+  hs.each(function(index, element) {
+    var tagName = $(this).get(0).tagName;
+    var level = +tagName[1];
+
+    if(tagName[0].toUpperCase() == "H"){
+      var contentH = $(this).html();//获取内容
+      var markid="mark-"+tagName+"-"+index.toString();
+      $(this).attr("id",markid);//为当前h标签设置id
+      let cateItem$ = $('<a href="#' + markid +'">' + contentH + '</a>');
+      cateItem$.css({
+        'cursor': 'pointer',
+        'color': '#595959',
+        'font-size': '12px',
+        'line-height': '24px',
+        'display': 'block',
+        'box-sizing': 'border-box',
+        'padding-left': 12 * (level - 1) + 'px'
+      }).click(function() {
+        let id = $(this).attr('href').slice(1);
+        let iframe_doc$ = $(editor.iframeElement.contentWindow.document.documentElement);
+        iframe_doc$.scrollTop(iframe_doc$.find('#' + id).first().offset().top);
+      }).hover(function () {
+        $(this).css('color', '#999');
+      }, function () {
+        $(this).css('color', '#595959');
+      });
+      toc_catelogs$.append(cateItem$);
+    }
+  });
+  toc_container$.append(toc_catelogs$);
+  $(editor.container.children[0]).append(toc_container$);
+}
+
 export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: '<h1 class="tym-placeholder" data-placeholder="请输入标题"><br data-cke-filler="true"></h1>',
+      contentValue: '',
       editConfig: {
         setup: function (editor) {
           let that = this;
@@ -116,7 +192,7 @@ export default {
             icon: 'toc',
             tooltip: '大纲',
             onAction: function (_) {
-              insertToc(editor)
+              insertToc22(editor)
             }
           });
         },
