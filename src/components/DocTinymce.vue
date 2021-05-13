@@ -105,6 +105,21 @@ function insertToc(editor) {
 }
 
 function insertToc22(editor) {
+  if ($(editor.container).find('.editor-toc').length !== 0) {
+    $(editor.container).find('.editor-toc').show();
+    return;
+  }
+  function activeTocItem(toc_container$, editor) {
+    let iframe_doc$ = $(editor.iframeElement.contentWindow.document.documentElement);
+    let curId = '';
+    toc_container$.find('a').css('color', '#595959').each(function () {
+      let id = $(this).attr('href').slice(1);
+      if (iframe_doc$.find('#' + id).first().offset().top <= iframe_doc$.scrollTop() + 10) {
+        curId = id;
+      }
+    });
+    toc_container$.find("[href='#"+ curId + "']").css('color', '#25b864')
+  }
   var hs = $(editor.iframeElement.contentDocument.body).find('h1,h2,h3,h4,h5,h6');
   if (hs.length == 0) return;
   var s = '';
@@ -152,10 +167,10 @@ function insertToc22(editor) {
     var level = +tagName[1];
 
     if(tagName[0].toUpperCase() == "H"){
-      var contentH = $(this).html();//获取内容
+      let contentH = $(this).html();//获取内容
       var markid="mark-"+tagName+"-"+index.toString();
       $(this).attr("id",markid);//为当前h标签设置id
-      let cateItem$ = $('<a href="#' + markid +'">' + contentH + '</a>');
+      let cateItem$ = $('<a href="#' + markid +'"></a>');
       cateItem$.css({
         'cursor': 'pointer',
         'color': '#595959',
@@ -173,11 +188,16 @@ function insertToc22(editor) {
       }, function () {
         $(this).css('color', '#595959');
       });
+      cateItem$.append($(contentH));
       toc_catelogs$.append(cateItem$);
     }
   });
   toc_container$.append(toc_catelogs$);
   $(editor.container.children[0]).append(toc_container$);
+  let handleScroll = _.debounce(activeTocItem, 500);
+  $(editor.iframeElement.contentWindow).scroll(function () {
+    handleScroll(toc_container$, editor)
+  });
 }
 
 export default {
