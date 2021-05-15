@@ -1,10 +1,7 @@
 <template>
   <div class="hello">
-    <button @click="toTop">toTop</button>
-    <div>
-      <Editor ref="myeditor" v-model="contentValue" :init="editConfig" @onChange="handleOnChange"
-              @onNodeChange="handleOnNodeChange"/>
-    </div>
+    <Editor ref="myeditor" v-model="contentValue" :init="editConfig" @onChange="handleOnChange"
+            @onNodeChange="handleOnNodeChange"/>
   </div>
 </template>
 
@@ -204,9 +201,9 @@ export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: '<h1 class="tym-placeholder" data-placeholder="请输入标题"><br data-cke-filler="true"></h1>',
+      contentValue: '请输入标题',
       editConfig: {
-        setup: function (editor) {
+        setup: (editor) => {
           let that = this;
           editor.ui.registry.addButton('docToc', {
             icon: 'toc',
@@ -215,6 +212,9 @@ export default {
               insertToc(editor)
             }
           });
+          this.$nextTick(() => {
+            this.insertDocTitleInput(editor);
+          })
         },
         language: "zh_CN", //中文
         height: 'calc(100% - 60px)',
@@ -294,7 +294,7 @@ export default {
     tinymce.init({}).then((editor) => {
       this.myeditor = this.$refs.myeditor.editor
       console.log(this.myeditor)
-      setTimeout(() => {
+      /*setTimeout(() => {
         console.log(this.myeditor.iframeElement.contentWindow.document.documentElement.childNodes[1]);
         var aa = this.myeditor.iframeElement.contentWindow.document.documentElement.childNodes[1].childNodes[0];
         console.log(aa);
@@ -302,17 +302,33 @@ export default {
           // console.log($(e.target).html());
           console.log('DOMNodeRemoved');
         });
-      },100);
+      },100);*/
     })
   },
   methods: {
+    insertDocTitleInput(editor) {
+      let docTitleInputContainer$ = $('<div class="tox-doc-title-input"></div>');
+      let docTitleInput$ = $('<input type="text" placeholder="请输入标题" >');
+      docTitleInput$.keyup(function(event){
+        if(event.keyCode ==13){
+          editor.focus();
+        }
+      });
+      docTitleInputContainer$.append(docTitleInput$);
+      console.log(editor.container)
+      $(editor.container.children[0]).append(docTitleInputContainer$);
+      $(editor.iframeElement.contentWindow).scroll(function () {
+        docTitleInputContainer$.css('top',(120 - $(editor.iframeElement.contentWindow.document.documentElement).scrollTop()) + 'px');
+      });
+    },
     handleSave() {
-      console.log('handleSave handleSave')
-      console.log(this.contentValue)
-      console.log(this.myeditor)
+      // console.log('handleSave handleSave')
+      // console.log(this.contentValue)
+      // console.log(this.myeditor)
     },
     toTop() {
       this.myeditor.iframeElement.contentWindow.document.documentElement.scrollTop = 0
+      // this.myeditor.focus();
     },
     getCatelogs() {
       console.log('getCatelogs')
@@ -323,7 +339,7 @@ export default {
     },
     handleOnNodeChange(node) {
       console.log('handleOnNodeChange')
-      let curContent = this.myeditor.getContent();
+      /*let curContent = this.myeditor.getContent();
       console.log(curContent)
       if (!curContent) {
         console.log('呵呵呵呵')
@@ -336,7 +352,7 @@ export default {
         let aa = curContent.replace(/tym-placeholder/g, 'tymdt-placeholder');
         let bb = aa.replace('tymdt-placeholder', 'tym-placeholder')
         this.myeditor.setContent(bb)
-      }
+      }*/
     }
   }
 }

@@ -12,12 +12,12 @@
 
 .mce-content-body {
   margin-bottom: 30px;
+  padding: 100px 50px 50px;
+  margin-top: 30px;
 }
-
 .mce-content-body:not([dir="rtl"]) blockquote {
   margin-left: 0;
 }
-
 .mce-content-body ul,
 .mce-content-body ol {
   padding: 0;
