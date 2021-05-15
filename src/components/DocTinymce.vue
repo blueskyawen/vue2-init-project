@@ -204,7 +204,7 @@ export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: '',
+      contentValue: '<h1 class="tym-placeholder" data-placeholder="请输入标题"><br data-cke-filler="true"></h1>',
       editConfig: {
         setup: function (editor) {
           let that = this;
@@ -212,7 +212,7 @@ export default {
             icon: 'toc',
             tooltip: '大纲',
             onAction: function (_) {
-              insertToc22(editor)
+              insertToc(editor)
             }
           });
         },
@@ -294,13 +294,21 @@ export default {
     tinymce.init({}).then((editor) => {
       this.myeditor = this.$refs.myeditor.editor
       console.log(this.myeditor)
+      setTimeout(() => {
+        console.log(this.myeditor.iframeElement.contentWindow.document.documentElement.childNodes[1]);
+        var aa = this.myeditor.iframeElement.contentWindow.document.documentElement.childNodes[1].childNodes[0];
+        console.log(aa);
+        $(aa).on("DOMNodeRemoved",function(e){
+          // console.log($(e.target).html());
+          console.log('DOMNodeRemoved');
+        });
+      },100);
     })
   },
   methods: {
     handleSave() {
       console.log('handleSave handleSave')
-      console.log(this.myeditor.container.firstChild)
-      console.log(this.myeditor.iframeElement.contentWindow.document.documentElement.scrollTop)
+      console.log(this.contentValue)
       console.log(this.myeditor)
     },
     toTop() {
@@ -311,9 +319,24 @@ export default {
     },
     handleOnChange() {
       console.log('handleOnChange')
+      console.log(this.contentValue)
     },
-    handleOnNodeChange() {
+    handleOnNodeChange(node) {
       console.log('handleOnNodeChange')
+      let curContent = this.myeditor.getContent();
+      console.log(curContent)
+      if (!curContent) {
+        console.log('呵呵呵呵')
+        this.myeditor.setContent('<h1 class="tym-placeholder" data-placeholder="请输入标题">')
+      } else if (!curContent.startsWith('<h1 class="tym-placeholder" data-placeholder="请输入标题">')) {
+        console.log('哈哈哈哈啊哈啊哈')
+        var temp = '<h1 class="tym-placeholder" data-placeholder="请输入标题"><br data-cke-filler="true"></h1>' + curContent
+        this.myeditor.setContent(temp)
+      } else {
+        let aa = curContent.replace(/tym-placeholder/g, 'tymdt-placeholder');
+        let bb = aa.replace('tymdt-placeholder', 'tym-placeholder')
+        this.myeditor.setContent(bb)
+      }
     }
   }
 }
