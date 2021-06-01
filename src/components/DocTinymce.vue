@@ -1,7 +1,11 @@
 <template>
   <div class="hello">
+    <div>
+      <input type="file" @change="loadtextfromfile" />
+    </div>
     <Editor ref="myeditor" v-model="contentValue" :init="editConfig" @onChange="handleOnChange"
             @onNodeChange="handleOnNodeChange"/>
+    <div class="doc-content" v-html="contentValue"></div>
   </div>
 </template>
 
@@ -16,6 +20,7 @@ import Editor from '@tinymce/tinymce-vue'
 // import 'tinymce/icons/default/icons'
 import "../../static/tinymce/plugins/toc";
 import _ from "underscore"
+import marked  from 'marked'
 
 function insertToc(editor) {
   if ($(editor.container).find('.editor-toc').length !== 0) {
@@ -201,7 +206,7 @@ export default {
   name: "DocTinymce",
   data () {
     return {
-      contentValue: '请输入标题',
+      contentValue: '',
       editConfig: {
         setup: (editor) => {
           let that = this;
@@ -217,7 +222,7 @@ export default {
           })
         },
         language: "zh_CN", //中文
-        height: 'calc(100% - 60px)',
+        height: '600px',
         menubar: false,
         toolbar_sticky: true,
         toolbar_mode: 'sliding', //  'floating', 'sliding', 'scrolling', or 'wrap'
@@ -284,7 +289,8 @@ export default {
         contextmenu: false,
         block_formats: 'Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; Header 4=h4; Header 5=h5',
       },
-      myeditor: null
+      myeditor: null,
+      rendererMD: null
     }
   },
   components: {
@@ -353,6 +359,32 @@ export default {
         let bb = aa.replace('tymdt-placeholder', 'tym-placeholder')
         this.myeditor.setContent(bb)
       }*/
+    },
+    loadtextfromfile(e) {
+      const file = e.target.files[0]
+      const reader = new FileReader()
+
+      reader.onload = e => {
+        let readmeContent = marked(e.target.result || '', {
+          sanitize: true
+        });
+        console.log(readmeContent);
+        this.myeditor.setContent(readmeContent);
+      }
+      reader.readAsText(file)
+    },
+    initMarked() {
+      this.rendererMD = new marked.Renderer();
+      marked.setOptions({
+        renderer: this.rendererMD,
+        gfm: true,//默认为true。 允许 Git Hub标准的markdown.
+        tables: true,//默认为true。 允许支持表格语法。该选项要求 gfm 为true。
+        breaks: false,//默认为false。 允许回车换行。该选项要求 gfm 为true。
+        pedantic: false,//默认为false。 尽可能地兼容 markdown.pl的晦涩部分。不纠正原始模型任何的不良行为和错误。
+        sanitize: false,//对输出进行过滤（清理）
+        smartLists: true,
+        smartypants: false//使用更为时髦的标点，比如在引用语法中加入破折号。
+      });
     }
   }
 }
@@ -360,7 +392,7 @@ export default {
 function file_picker_callback_hander(cb, value, meta) {
   var input = document.createElement('input');
   input.setAttribute('type', 'file');
-  input.setAttribute('accept', 'image/*');
+  input.setAttribute('accept', 'image/*|text/*');
 
   /*
     Note: In modern browsers input[type="file"] is functional without
@@ -441,11 +473,198 @@ function example_image_upload_handler (blobInfo, success, failure, progress) {
 
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .hello {
-  height: 100%;
+  height:100%;
+  overflow: auto;
 }
-.hello div {
-  height: inherit;
+.doc-content /deep/ {
+h1 {
+  display: block;
+  font-size: 2em;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
 }
+h2 {
+  display: block;
+  font-size: 1.5em;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+h3 {
+  display: block;
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+h4 {
+  display: block;
+  margin-block-start: 1.33em;
+  margin-block-end: 1.33em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+h5 {
+  display: block;
+  font-size: 0.83em;
+  margin-block-start: 1.67em;
+  margin-block-end: 1.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+p {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+ul {
+  display: block;
+  list-style-type: disc;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+}
+ol {
+  display: block;
+  list-style-type: decimal;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+}
+a {
+  color: -webkit-link;
+  cursor: pointer;
+  text-decoration: underline;
+}
+blockquote {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 40px;
+  margin-inline-end: 40px;
+}
+hr {
+  display: block;
+  unicode-bidi: isolate;
+  margin-block-start: 0.5em;
+  margin-block-end: 0.5em;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  overflow: hidden;
+  border-style: inset;
+  border-width: 1px;
+}
+table {
+  border-collapse: collapse;
+}
+/* Apply a default padding if legacy cellpadding attribute is missing */
+table:not([cellpadding]) th,
+table:not([cellpadding]) td {
+  padding: 0.4rem;
+}
+/* Set default table styles if a table has a positive border attribute
+   and no inline css */
+table[border]:not([border="0"]):not([style*="border-width"]) th,
+table[border]:not([border="0"]):not([style*="border-width"]) td {
+  border-width: 1px;
+}
+/* Set default table styles if a table has a positive border attribute
+   and no inline css */
+table[border]:not([border="0"]):not([style*="border-style"]) th,
+table[border]:not([border="0"]):not([style*="border-style"]) td {
+  border-style: solid;
+}
+/* Set default table styles if a table has a positive border attribute
+   and no inline css */
+table[border]:not([border="0"]):not([style*="border-color"]) th,
+table[border]:not([border="0"]):not([style*="border-color"]) td {
+  border-color: #ccc;
+}
+figure {
+  display: table;
+  margin: 1rem auto;
+}
+figure figcaption {
+  color: #999;
+  display: block;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+hr {
+  border-color: #ccc;
+  border-style: solid;
+  border-width: 1px 0 0 0;
+}
+code {
+  border-radius: 3px;
+  padding: 0.1rem 0.2rem;
+}
+&:not([dir="rtl"]) blockquote {
+   border-left: 2px solid #ccc;
+   margin-left: 1.5rem;
+   padding-left: 1rem;
+ }
+&:not[dir="rtl"] blockquote {
+   border-right: 2px solid #ccc;
+   margin-right: 1.5rem;
+   padding-right: 1rem;
+ }
+.mce-content-body [contentEditable="false"] {
+  cursor: default;
+}
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: #f5f2f0;
+}
+pre[class*="language-"] {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+}
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #000;
+  background: 0 0;
+  text-shadow: 0 1px #fff;
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  font-size: 1em;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+pre[class*="language-"] {
+  background: #f5f2f0;
+}
+pre {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+}
+}
+
 </style>
